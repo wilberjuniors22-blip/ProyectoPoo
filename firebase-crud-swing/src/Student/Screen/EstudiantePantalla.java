@@ -136,9 +136,25 @@ public class EstudiantePantalla extends JFrame {
         return boton;
     }
 
-    private void accionBoton(String nombreBoton) {
-        JOptionPane.showMessageDialog(this, "Presionaste: " + nombreBoton);
-    }
+
+    private void accionBoton(String nombreBoton) {
+        
+        if (nombreBoton.equals("Ver mis Notas")) {
+            try {
+                // 'this.fb' es tu conexión a Firebase
+                // 'this.nombre' es el ID del estudiante (ej: "prueba")
+                VistaNotasAsistencias vista = new VistaNotasAsistencias(this, this.fb, this.nombre);
+                vista.setVisible(true); // Esto abre la nueva ventana
+                
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Error al abrir la vista de notas: " + e.getMessage());
+                e.printStackTrace();
+            }
+        } else {
+           
+            JOptionPane.showMessageDialog(this, "Presionaste: " + nombreBoton);
+        }
+    }
 
     private void cargarTotalesFirebase() {
         try {
@@ -166,3 +182,4 @@ public class EstudiantePantalla extends JFrame {
         });
     }
 }
+
