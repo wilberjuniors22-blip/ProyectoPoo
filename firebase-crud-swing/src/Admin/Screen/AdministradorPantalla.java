@@ -10,12 +10,13 @@ import Admin.StudentManagement.AsignarCursosyPadresFrame;
 import Admin.ClassManagement.CrearClaseFrame;
 import Admin.UserManagement.CrudFrame;
 import Admin.UserManagement.FirebaseClient;
+import Admin.Calendar.Horario; // ✅ IMPORTANTE: importa la clase Horario
 
 public class AdministradorPantalla extends JFrame {
 
     private JLabel lblUsuariosActivos;
     private JLabel lblCursosActivos;
-    private String nombre; // Usamos el nombre pasado al constructor
+    private String nombre;
     private final FirebaseClient fb;
 
     public AdministradorPantalla(String nombre) throws IOException {
@@ -75,16 +76,13 @@ public class AdministradorPantalla extends JFrame {
         // ====== BOTONES ======
         int x = 100, y = 310, w = 250, h = 120, esp = 40;
 
-        // Izquierda
-        // El botón "Gestionar Usuarios" ahora llama a la acción CrudFrame
         add(crearBoton("👤", "Crear Usuarios", "Crear usuario y asignar roles", x, y, () -> accionBoton("Gestionar Usuarios")));
         add(crearBoton("👥", "Gestionar Usuarios", "Modificar atributos de los usuarios", x + w + esp, y, () -> accionBoton("Gestionar Roles")));
         add(crearBoton("📚", "Asignar Cursos y Acudientes", "Padres de familia y cursos", x, y + h + esp, () -> accionBoton("Gestionar Cursos")));
         add(crearBoton("📖", "Gestionar Clase/Asignatura", "Crear y Asignar Asignaturas y Clases", x + w + esp, y + h + esp, () -> accionBoton("Gestionar Asignaturas")));
 
-        // Derecha
         int x2 = 710;
-        add(crearBoton("📅", "Calendario", "Materias y docentes", x2, y, () -> accionBoton("Periodos Académicos")));
+        add(crearBoton("📅", "Calendario", "Materias y docentes", x2, y, () -> accionBoton("Calendario"))); // ✅ Cambiado a "Calendario"
         add(crearBoton("    ⚖\uFE0F", "Escalas de Calificación", "Cambiar notas/Porcentajes", x2 + w + esp, y, () -> accionBoton("Escalas de Calificación")));
         add(crearBoton("💬", "Publicar Circulares", "Avisos institucionales", x2, y + h + esp, () -> accionBoton("Publicar Circulares")));
         add(crearBoton("📊", "Generar Reportes", "Análisis y estadísticas", x2 + w + esp, y + h + esp, () -> accionBoton("Generar Reportes")));
@@ -100,7 +98,7 @@ public class AdministradorPantalla extends JFrame {
                 setOpaque(false);
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(new Color(124, 105, 144)); // morado pastel
+                g2.setColor(new Color(124, 105, 144));
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 30, 30);
                 g2.dispose();
             }
@@ -162,56 +160,66 @@ public class AdministradorPantalla extends JFrame {
     }
 
     private void accionBoton(String nombreBoton) {
-        if (nombreBoton.equals("Gestionar Usuarios")) {
-            SwingUtilities.invokeLater(() -> {
-                try {
-                    CrudFrame ui = new CrudFrame(this.fb);
-                    ui.setVisible(true);
-                } catch (Exception e) {
-                    JOptionPane.showMessageDialog(this,
-                            "Error al cargar la pantalla de gestión de usuarios: " + e.getMessage(),
-                            "Error",
-                            JOptionPane.ERROR_MESSAGE);
-                    e.printStackTrace();
-                }
-            });
-        } else if (nombreBoton.equals("Gestionar Cursos")) {
-            SwingUtilities.invokeLater(() -> {
-                try {
-                    AsignarCursosyPadresFrame ui = new AsignarCursosyPadresFrame();
-                    ui.setVisible(true);
-                } catch (Exception e) {
-                    JOptionPane.showMessageDialog(this,
-                            "Error al cargar la pantalla de asignación de cursos y padres: " + e.getMessage(),
-                            "Error",
-                            JOptionPane.ERROR_MESSAGE);
-                    e.printStackTrace();
-                }
-            });
-        } else if (nombreBoton.equals("Gestionar Asignaturas")) {
-            SwingUtilities.invokeLater(() -> {
-                try {
-                    FirebaseConexion conexion = new FirebaseConexion("segundaconexion.txt"); // crea nueva conexión
-                    CrearClaseFrame ui = new CrearClaseFrame(conexion);
-                    ui.setVisible(true);
-                } catch (Exception e) {
-                    JOptionPane.showMessageDialog(this,
-                            "Error al cargar la pantalla de gestión de asignaturas: " + e.getMessage(),
-                            "Error",
-                            JOptionPane.ERROR_MESSAGE);
-                    e.printStackTrace();
-                }
-            });
-        } else {
-            JOptionPane.showMessageDialog(this, "Presionaste: " + nombreBoton);
+        switch (nombreBoton) {
+            case "Gestionar Usuarios":
+                SwingUtilities.invokeLater(() -> {
+                    try {
+                        CrudFrame ui = new CrudFrame(this.fb);
+                        ui.setVisible(true);
+                    } catch (Exception e) {
+                        mostrarError("Error al cargar la pantalla de gestión de usuarios", e);
+                    }
+                });
+                break;
+
+            case "Gestionar Cursos":
+                SwingUtilities.invokeLater(() -> {
+                    try {
+                        AsignarCursosyPadresFrame ui = new AsignarCursosyPadresFrame();
+                        ui.setVisible(true);
+                    } catch (Exception e) {
+                        mostrarError("Error al cargar la pantalla de asignación de cursos y padres", e);
+                    }
+                });
+                break;
+
+            case "Gestionar Asignaturas":
+                SwingUtilities.invokeLater(() -> {
+                    try {
+                        FirebaseConexion conexion = new FirebaseConexion("segundaconexion.txt");
+                        CrearClaseFrame ui = new CrearClaseFrame(conexion);
+                        ui.setVisible(true);
+                    } catch (Exception e) {
+                        mostrarError("Error al cargar la pantalla de gestión de asignaturas", e);
+                    }
+                });
+                break;
+
+            case "Calendario":
+                SwingUtilities.invokeLater(() -> {
+                    try {
+                        Horario horarioFrame = new Horario();
+                        horarioFrame.setVisible(true);
+                    } catch (Exception e) {
+                        mostrarError("Error al abrir el horario de clases", e);
+                    }
+                });
+                break;
+
+            default:
+                JOptionPane.showMessageDialog(this, "Presionaste: " + nombreBoton);
         }
+    }
+
+    private void mostrarError(String mensaje, Exception e) {
+        JOptionPane.showMessageDialog(this, mensaje + ": " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        e.printStackTrace();
     }
 
     private void cargarTotalesFirebase() {
         try {
             Map<String, Object> usuarios = fb.listAll("Usuarios");
             Map<String, Object> cursos = fb.listAll("Cursos");
-
             lblUsuariosActivos.setText(String.valueOf(usuarios.size()));
             lblCursosActivos.setText(String.valueOf(cursos.size()));
         } catch (Exception e) {
@@ -220,6 +228,7 @@ public class AdministradorPantalla extends JFrame {
             e.printStackTrace();
         }
     }
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             try {
