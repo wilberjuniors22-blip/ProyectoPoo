@@ -97,7 +97,7 @@ public class Horario extends JFrame {
         add(topPanel, BorderLayout.NORTH);
         add(new JScrollPane(horarioTable), BorderLayout.CENTER);
 
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setSize(950, 550);
         setLocationRelativeTo(null);
         setVisible(true);
@@ -212,3 +212,4 @@ public class Horario extends JFrame {
         SwingUtilities.invokeLater(Horario::new);
     }
 }
+
