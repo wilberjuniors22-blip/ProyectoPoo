@@ -1,0 +1,3 @@
+DATABASE_URL=https://schoolappsnet-poo-default-rtdb.firebaseio.com/
+NODE=Asignaturas
+AUTH=
