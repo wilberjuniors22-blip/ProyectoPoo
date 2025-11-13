@@ -14,6 +14,7 @@ public class AcudientePantalla extends JFrame { // 2. CAMBIO DE NOMBRE DE CLASE
     private JLabel lblPromedioEstudiante;
     private String nombre;
     private final FirebaseClient fb;
+    private String estudianteSeleccionado;
 
     public AcudientePantalla(String nombre) throws IOException {
         this.fb = new FirebaseClient("conexion.txt");
@@ -53,7 +54,7 @@ public class AcudientePantalla extends JFrame { // 2. CAMBIO DE NOMBRE DE CLASE
         btnSeleccionar.setBackground(new Color(204, 153, 51));
         btnSeleccionar.setForeground(Color.BLACK);
         btnSeleccionar.setFont(new Font("SansSerif", Font.BOLD, 14));
-        btnSeleccionar.addActionListener(e -> accionBoton("Seleccionar Estudiante"));
+        btnSeleccionar.addActionListener(e -> seleccionarEstudiante());
         add(btnSeleccionar);
 
         // Ajustamos la ubicación de las tarjetas superiores para dejar espacio al botón
@@ -175,6 +176,70 @@ public class AcudientePantalla extends JFrame { // 2. CAMBIO DE NOMBRE DE CLASE
     private void accionBoton(String nombreBoton) {
         JOptionPane.showMessageDialog(this, "Presionaste: " + nombreBoton);
     }
+    private void seleccionarEstudiante() {
+    try {
+        // 🔹 Paso 1: obtener lista de hijos desde Firebase (simulada aquí)
+        // Si ya tienes guardada en Firebase una colección "Estudiantes" relacionada al acudiente,
+        // podrías filtrarla por ID del acudiente.
+        Map<String, Object> hijos = fb.listAll("Estudiantes");
+
+        if (hijos == null || hijos.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "No se encontraron estudiantes asociados.", "Sin Resultados", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // 🔹 Paso 2: Crear arreglo de nombres
+        String[] nombres = hijos.keySet().toArray(new String[0]);
+
+        // 🔹 Paso 3: Mostrar diálogo para seleccionar
+        String seleccionado = (String) JOptionPane.showInputDialog(
+                this,
+                "Selecciona un estudiante:",
+                "Seleccionar Estudiante",
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                nombres,
+                estudianteSeleccionado // valor por defecto
+        );
+
+        // 🔹 Paso 4: Actualizar datos
+        if (seleccionado != null) {
+            estudianteSeleccionado = seleccionado;
+            JOptionPane.showMessageDialog(this, "Has seleccionado: " + estudianteSeleccionado);
+
+            // (Ejemplo) Actualizar valores en las tarjetas
+            actualizarDatosDelEstudiante(estudianteSeleccionado);
+        }
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error al cargar estudiantes: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        e.printStackTrace();
+    }
+}
+    private void actualizarDatosDelEstudiante(String nombreEstudiante) {
+    try {
+        // 🔹 Aquí puedes obtener la info específica desde Firebase
+        // Ejemplo simulado:
+        Map<String, Object> info = fb.get("Estudiantes/" + nombreEstudiante);
+
+        // 🔹 Si no existe, mostrar mensaje
+        if (info == null) {
+            lblTareasPendientes.setText("—");
+            lblPromedioEstudiante.setText("—");
+            return;
+        }
+
+        // 🔹 Actualizar los labels con los valores reales o simulados
+        Object tareasPend = info.getOrDefault("tareasPendientes", "0");
+        Object promedio = info.getOrDefault("promedio", "—");
+
+        lblTareasPendientes.setText(String.valueOf(tareasPend));
+        lblPromedioEstudiante.setText(String.valueOf(promedio));
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error al obtener datos del estudiante: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    }
+}
 
     // Se mantiene el método de Firebase por si se necesita, aunque no se usa en el constructor
     private void cargarTotalesFirebase() {
@@ -205,4 +270,5 @@ public class AcudientePantalla extends JFrame { // 2. CAMBIO DE NOMBRE DE CLASE
             }
         });
     }
+
 }
